@@ -4,4 +4,4 @@ first_name = input('Please type your name>> ')
 age = input('How old are you>> ')
 
 print(first_name)
-print(age)
+print(age) 

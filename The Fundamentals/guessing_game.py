@@ -1,6 +1,6 @@
 import random
 
-correct = random.randint(1, 10)
+correct = random.randint(1, 20)
 has_won = False
 guesses = 0
 while not has_won:

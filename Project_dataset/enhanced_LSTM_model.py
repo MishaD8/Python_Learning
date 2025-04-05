@@ -304,14 +304,17 @@ def predict_next_draw(model, data, window_size, scaler=None):
     # Generate prediction
     prediction = model.predict(x_pred)
 
+    # Flatten the prediction if it's a multi-dimensional array
+    prediction = prediction.flatten()
+
     # Inverse transform if scaler was used
     if scaler is not None:
         # Create dummy array with same shape as the the original data
         dummy = np.zeros((1, scaler.n_features_in_))
         # Place the prediction in the correct columns
-        dummy[0, :prediction.shape[1]] = prediction[0]
+        dummy[0, :len(prediction)] = prediction
         # Inverse transform
-        prediction = scaler.inverse_transform(dummy)[0, :prediction.shape[1]]
+        prediction = scaler.inverse_transform(dummy)[0, :len(prediction)]
 
     # Round to integers
     rounded_prediction = np.round(prediction).astype(int)
@@ -321,19 +324,22 @@ def predict_next_draw(model, data, window_size, scaler=None):
     min_val, max_val = 1, 49
     rounded_prediction = np.clip(rounded_prediction, min_val, max_val)
 
+    # Convert to a list of integers
+    numbers_list = rounded_prediction.tolist()
+
     # Ensure all predicted numbers are unique 
     # Convert NumPy arrays to Python integers for set operations
-    rounded_prediction_list = [int(x) for x in rounded_prediction]
-    if len(rounded_prediction_list) != len(set(rounded_prediction_list)):
+    
+    if len(numbers_list) != len(set(numbers_list)):
         # If duplicates exist, replace them with new numbers
-        unique_nums = set(rounded_prediction_list)
+        unique_nums = set(numbers_list)
         all_possible = set(range(min_val, max_val +1))
         remaining = list(all_possible - unique_nums)
         np.random.shuffle(remaining)
 
         # Replace duplicates
         unique_list = []
-        for num in rounded_prediction_list:
+        for num in numbers_list:
             if num not in unique_list:
                 unique_list.append(num)
             else:

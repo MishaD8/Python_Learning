@@ -196,7 +196,7 @@ def train_with_validation(model, x_train, y_train, x_val, y_val, batch_size=32, 
 
     return history, model
 
-def visialize_training(history):
+def visualize_training(history):
     """
     Create detailed visualizations of training progress.
 
@@ -235,3 +235,193 @@ def visialize_training(history):
     plt.tight_layout()
     plt.show()
 
+def evaluate_predictions(model, x_test, y_test, scaler=None):
+    """
+    Evaluate model predictions against actual lottery numbers.
+
+    Args:
+        model: Trained model 
+        x_test: Test input sequences
+        y_test: Actual lottery numbers
+        scaler: Scaler used for normalization (if any)
+
+    Returns: 
+        DataFrame comparing predicted vs actual numbers
+    """
+
+    # Make predictions
+    y_pred = model.predict(x_test)
+
+    # Inverse transform if scaler was used
+    if scaler is not None:
+        # Create dummy array with same shape as the original data
+        dummy = np.zeros((y_pred.shape[0], scaler.n_features_in_))
+        # Place the predictions in the correct columns
+        dummy[:, :y_pred.shape[1]] = y_pred
+        # Inverse transform
+        y_pred = scaler.inverse_transform(dummy)[:, :y_test.shape[1]]
+
+        # Do the same for actual values
+        dummy = np.zeros((y_test.shape[0], scaler.n_features_in_))
+        dummy[:, :y_test.shape[1]] = y_test
+        y_test = scaler.inverse_transform(dummy)[:, :y_test.shape[1]]
+
+    # Round predictions for lottery numbers
+    y_pred_rounded = np.round(y_pred).astype(int)
+
+    # Create DataFrame for comparison
+    results = pd.DataFrame()
+    for i in range(y_test.shape[1]):
+        results[f'Actual_{i+1}'] = y_test[:, i]
+        results[f'Predicted_{i+1}'] = y_pred_rounded[:, i]
+        results[f'Difference_{i+1}'] = np.abs(results[f'Actual_{i+1}'] - results[f'Predicted_{i+1}'])
+
+
+    # Add overall error metrics
+    results['Mean_Difference'] = results[[f'Difference_{i+1}' for i in range(y_test.shape[1])]].mean(axis=1)
+
+    return results
+
+def predict_next_draw(model, data, window_size, scaler=None):
+    """
+    Predict the next lottery draw.
+
+    Args:
+        model: Trained model
+        data: Full preprocessed dataset
+        window_size: Window size used for model training
+        scaler: Scaler used for normalization (if any)
+
+    Returns:
+        Predicted lottery numbers
+    """
+    # Get the most recent window of data
+    last_window = data.iloc[-window_size:].values
+
+    # Reshape for model input (adding batch dimension)
+    x_pred = last_window.reshape(1, window_size, data.shape[1])
+
+    # Generate prediction
+    prediction = model.predict(x_pred)
+
+    # Inverse transform if scaler was used
+    if scaler is not None:
+        # Create dummy array with same shape as the the original data
+        dummy = np.zeros((1, scaler.n_features_in_))
+        # Place the prediction in the correct columns
+        dummy[0, :prediction.shape[1]] = prediction[0]
+        # Inverse transform
+        prediction = scaler.inverse_transform(dummy)[0, :prediction.shape[1]]
+
+    # Round to integers
+    rounded_prediction = np.round(prediction).astype(int)
+
+    # Make sure predictions are within valid range (e.g., 1-49 for many lotteries)
+    # Adjust min_val and max_val based on your specific lottery
+    min_val, max_val = 1, 49
+    rounded_prediction = np.clip(rounded_prediction, min_val, max_val)
+
+    # Ensure all predicted numbers are unique 
+    # Convert NumPy arrays to Python integers for set operations
+    rounded_prediction_list = [int(x) for x in rounded_prediction]
+    if len(rounded_prediction_list) != len(set(rounded_prediction_list)):
+        # If duplicates exist, replace them with new numbers
+        unique_nums = set(rounded_prediction_list)
+        all_possible = set(range(min_val, max_val +1))
+        remaining = list(all_possible - unique_nums)
+        np.random.shuffle(remaining)
+
+        # Replace duplicates
+        unique_list = []
+        for num in rounded_prediction_list:
+            if num not in unique_list:
+                unique_list.append(num)
+            else:
+                unique_list.append(remaining.pop())
+
+        rounded_prediction = np.array(unique_list)
+
+    return rounded_prediction
+
+def main():
+    """
+    Main function to run the full lottery prediction process.
+    """
+
+    # 1. Load and preprocess 5 years of lottery data
+    try:
+        print("Loading and preprocessing data...")
+        full_data, numeric_data = load_and_preprocess_data(r'G:\Мой диск\cybersecurity\Python for cybersecurity\Project_dataset\dataset.csv')
+        print(f"Loaded data with {len(full_data)} draws and {numeric_data.shape[1]} features")
+    except Exception as e:
+        print(f"Error loading data: {e}")
+        return
+    
+    # 2. Scale the data
+    print("Scaling data...")
+    scaler = StandardScaler()
+    scaled_data = scaler.fit_transform(numeric_data)
+    scaled_df = pd.DataFrame(scaled_data, columns=numeric_data.columns)
+
+    # 3. Create sequences
+    print("Creating sequences...")
+    window_size = 10 # Using 10 previous draws for prediction
+    x, y = prepare_sequences(scaled_df, window_size)
+    print(f"Created {len(x)} sequences with shape {x.shape}")
+
+    # 4. Split data (time series - keep chronological order)
+    # Use earlier 70% for training, middle 15% for validation, last 15% for testing
+    train_size = int(0.7 * len(x))
+    val_size = int(0.15 * len(x))
+
+    x_train, y_train = x[:train_size], y[:train_size]
+    x_val, y_val = x[train_size:train_size+val_size], y[train_size:train_size+val_size]
+    x_test, y_test = x[train_size+val_size:], y[train_size+val_size:]
+
+    print(f"Training set: {x_train.shape}")
+    print(f"Validation set: {x_val.shape}")
+    print(f"Test set: {x_test.shape}")
+
+    # 5. Build enhanced model
+    print("Building model...")
+    input_shape = (x_train.shape[1], x_train.shape[2])
+    output_shape = y_train.shape[1]
+    model = build_enhances_model(input_shape, output_shape)
+    model.summary()
+
+    # 6. Train model
+    print("Training model...")
+    history, trained_model = train_with_validation(
+        model, x_train, y_train, x_val, y_val, batch_size=32, epochs=300
+    )
+
+    # 7. Visualize training
+    print("Visualizing training progress...")
+    visualize_training(history)  
+
+    #8. Evaluate on test set
+    print("Evaluating model...")
+    results = evaluate_predictions(trained_model, x_test, y_test)
+    print("\nSample of prediction results:")
+    print(results.head())
+
+    # Calculate and print average error
+    mae = results['Mean_Difference'].mean()
+    print(f"\nAverage prediction error: {mae:.2f}")
+
+    # 9. Predict next draw
+    print("\nPredicting next lottery draw...")
+    next_draw = predict_next_draw(trained_model, scaled_df, window_size)
+    print(f"Predicted numbers for next draw: {next_draw}")
+
+    # 10. Optional: Save the model for future use
+    trained_model.save('lottery_prediction_model.h5')
+    print("Model saved as 'lottery_prediction_model.h5'")
+
+
+if __name__ == "__main__":
+    # Set seeds for reproducibility
+    np.random.seed(42)
+    tf.random.set_seed(42)
+
+    main()

@@ -2,7 +2,7 @@ import requests
 import csv
 import time
 
-API_KEY = 'ac619e00f82fb7928db52466aa6b4dd2'
+API_KEY = '2cd39e52f3a713cb97b4f32db562ce3d'
 
 headers = {
     "x-apisports-key": API_KEY

@@ -10,6 +10,8 @@ from tensorflow.keras.models import Sequential, load_model # type: ignore
 from tensorflow.keras.layers import LSTM, Dense, Dropout, BatchNormalization, Bidirectional # type: ignore
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau # type: ignore
 from tensorflow.keras.optimizers import Adam   # type: ignore
+from tensorflow.keras.losses import mean_squared_error # type: ignore
+from tensorflow.keras.metrics import mean_absolute_error # type: ignore
 
 def load_and_preprocess_data(filepath, add_features=True):
     """
@@ -337,7 +339,7 @@ def predict_next_draw(model, data, window_size, scaler=None):
         unique_nums = set(numbers_list)
         all_possible = set(range(min_val, max_val +1))
         remaining = list(all_possible - unique_nums)
-        np.random.seed(int(pd.Timestamp.now().timestamp))
+        np.random.seed(int(pd.Timestamp.now().timestamp()))
         np.random.shuffle(remaining)
 
         # Replace duplicates
@@ -435,7 +437,14 @@ def update_existing_model():
     # Load the existing model
 
     try:
-        model = load_model('lottery_prediction_model.h5')
+        # Define custom_objects with your metrics and loss functions
+        custom_objects = {
+            'mse': mean_squared_error,
+            'mae': mean_absolute_error
+        }
+
+        # Load model with custom objects
+        model = load_model('lottery_prediction_model.h5', custom_objects=custom_objects)
         print("Successfully loaded existing model")
     except Exception as e:
         print(f"Error loading model: {e}")
@@ -497,4 +506,4 @@ if __name__ == "__main__":
     # main()
 
     # Option 2: Update existing model with new data
-    update_existing_model
+    update_existing_model()

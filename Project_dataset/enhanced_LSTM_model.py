@@ -26,8 +26,10 @@ def load_and_preprocess_data(filepath, add_features=True):
     data = pd.read_csv(r'G:\Мой диск\cybersecurity\Python for cybersecurity\Project_dataset\dataset.csv')
 
     # Convert date column to datetime
-    if 'date' in data.columns:
+    if 'data' in data.columns:
         data['date'] = pd.to_datetime(data['data'])
+    elif 'date' in data.columns:
+        data['date'] = pd.to_datetime(data['date'])
 
     # Sort by date (ascending order)
     if 'date' in data.columns:
@@ -335,6 +337,7 @@ def predict_next_draw(model, data, window_size, scaler=None):
         unique_nums = set(numbers_list)
         all_possible = set(range(min_val, max_val +1))
         remaining = list(all_possible - unique_nums)
+        np.random.seed(int(pd.Timestamp.now().timestamp))
         np.random.shuffle(remaining)
 
         # Replace duplicates
@@ -425,9 +428,73 @@ def main():
     print("Model saved as 'lottery_prediction_model.h5'")
 
 
+def update_existing_model():
+    """
+    Update existing model with new lottery drawings
+    """
+    # Load the existing model
+
+    try:
+        model = load_model('lottery_prediction_model.h5')
+        print("Successfully loaded existing model")
+    except Exception as e:
+        print(f"Error loading model: {e}")
+        return
+    
+    # Load and preprocess updated data
+    print("Loading and preprocessing updated data...")
+    full_data, numeric_data = load_and_preprocess_data(r'G:\Мой диск\cybersecurity\Python for cybersecurity\Project_dataset\dataset.csv')
+    print(f"Loaded data with {len(full_data)} draws and {numeric_data.shape[1]} features")
+
+    #Scale the data
+    print("Scaling data...")
+    scaler = StandardScaler()
+    scaled_data = scaler.fit_transform(numeric_data)
+    scaled_df = pd.DataFrame(scaled_data, columns=numeric_data.columns)
+
+    # Create sequences
+    print("Creating sequences...")
+    window_size = 10
+    x,y = prepare_sequences(scaled_df, window_size)
+
+    # Split data (use last portion for validation)
+    train_size = int(0.85 * len(x))
+    x_train, y_train = x[:train_size], y[:train_size]
+    x_val, y_val = x[train_size:], y[train_size:]
+
+    # Use a different random seed for training
+    np.random.seed(int(pd.Timestamp.now().timestamp))
+    tf.random.set_seed(int(pd.Timestamp.now().timestamp))
+
+    # Fine-tune the model on new data
+    print("Fine-tuning model with updated data...")
+    model.fit(
+        x_train, y_train,
+        validation_data=(x_val, y_val),
+        epochs=50,
+        batch_size=32,
+        verbose=1
+    )
+
+    # Save the updated model
+    model.save('updated_lottery_model.h5')
+    print("Updated model saved as 'updated_lottery_model.h5'")
+
+    # Predict next draw
+    print("Predicting next lottery draw with updated model...")
+    next_draw = predict_next_draw(model, scaled_df, window_size, scaler)
+    print(f"Predicted numbers for next draw: {next_draw}")
+
+
 if __name__ == "__main__":
-    # Set seeds for reproducibility
+    # Set seeds for reproducibility - but use different seeds when updating
     np.random.seed(42)
     tf.random.set_seed(42)
 
-    main()
+    # Uncomment the option you want to run
+
+    # Option 1: Run full training from scratch
+    # main()
+
+    # Option 2: Update existing model with new data
+    update_existing_model

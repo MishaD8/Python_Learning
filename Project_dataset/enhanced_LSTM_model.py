@@ -6,12 +6,15 @@ from datetime import datetime
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from sklearn.model_selection import train_test_split
 import tensorflow as tf
+from tensorflow import keras
 from tensorflow.keras.models import Sequential, load_model # type: ignore
 from tensorflow.keras.layers import LSTM, Dense, Dropout, BatchNormalization, Bidirectional # type: ignore
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau # type: ignore
-from tensorflow.keras.optimizers import Adam   # type: ignore
-from tensorflow.keras.losses import mean_squared_error # type: ignore
-from tensorflow.keras.metrics import mean_absolute_error # type: ignore
+from tensorflow.keras.optimizers import Adam # type: ignore
+from keras.losses import MSE as mean_squared_error 
+from keras.metrics import MAE as mean_absolute_error 
+
+
 
 def load_and_preprocess_data(filepath, add_features=True):
     """
@@ -429,33 +432,39 @@ def main():
     trained_model.save('lottery_prediction_model.h5')
     print("Model saved as 'lottery_prediction_model.h5'")
 
+# def load_model_with_custom_objects():
+#     try:
+#         # Define custom objects
+#         custom_objects = {
+#             'loss': 'mse', # Use string identifier
+#             'metrics': ['mae'] # Use string identifier
+#         }
+
+#         # Load model with custom objects
+#         model = load_model('lottery_prediction_model.h5', compile=False)
+
+#         # Recompile the model
+#         optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+#         model.compile(optimizer=optimizer, loss='mse', metrics=['mae'])
+
+#         print("Successfully loaded existing model")
+#         return model
+#     except Exception as e:
+#         print(f"Error loading model: {e}")
+#         return None
 
 def update_existing_model():
     """
-    Update existing model with new lottery drawings
+    Update existing model with new lottery drawings by rebuilding the model and loading weights
     """
-    # Load the existing model
 
-    try:
-        # Define custom_objects with your metrics and loss functions
-        custom_objects = {
-            'mse': mean_squared_error,
-            'mae': mean_absolute_error
-        }
+    # First, load and preprocess the data
 
-        # Load model with custom objects
-        model = load_model('lottery_prediction_model.h5', custom_objects=custom_objects)
-        print("Successfully loaded existing model")
-    except Exception as e:
-        print(f"Error loading model: {e}")
-        return
-    
-    # Load and preprocess updated data
     print("Loading and preprocessing updated data...")
     full_data, numeric_data = load_and_preprocess_data(r'G:\Мой диск\cybersecurity\Python for cybersecurity\Project_dataset\dataset.csv')
     print(f"Loaded data with {len(full_data)} draws and {numeric_data.shape[1]} features")
 
-    #Scale the data
+    # Scale the data
     print("Scaling data...")
     scaler = StandardScaler()
     scaled_data = scaler.fit_transform(numeric_data)
@@ -464,19 +473,40 @@ def update_existing_model():
     # Create sequences
     print("Creating sequences...")
     window_size = 10
-    x,y = prepare_sequences(scaled_df, window_size)
+    x, y = prepare_sequences(scaled_df, window_size)
 
-    # Split data (use last portion for validation)
+    # Recreate the model with the same architecture
+    print("Rebuilding model architecture...")
+    input_shape = (window_size, scaled_df.shape[1])
+    output_shape = y.shape[1]
+    model = build_enhances_model(input_shape, output_shape)
+
+    try:
+        # Try to load the weights
+        # First, try loading the full model (might work in some versions)
+        try:
+            loaded_model = load_model('lottery_prediction.h5', compile=False)
+            model.set_weights(loaded_model.get_weights())  
+            print("Successfully loaded model weights")
+        except:
+            # If that fails, try loading just the weights
+            model.load_weights('lottery_prediction_model.h5')
+            print("Successfully loaded weights from model file")
+    except Exception as e:
+        print(f"Warning: Could not load weights, using new model: {e}")
+        # Continue with a fresh model if loading fails
+
+    # Use a different random seed
+    np.random.seed(int(pd.Timestamp.now().timestamp()))
+    tf.random.set_seed(int(pd.Timestamp.now().timestamp()))
+
+    #Split data
     train_size = int(0.85 * len(x))
     x_train, y_train = x[:train_size], y[:train_size]
     x_val, y_val = x[train_size:], y[train_size:]
 
-    # Use a different random seed for training
-    np.random.seed(int(pd.Timestamp.now().timestamp))
-    tf.random.set_seed(int(pd.Timestamp.now().timestamp))
-
-    # Fine-tune the model on new data
-    print("Fine-tuning model with updated data...")
+    # Train/fine-tune the model
+    print("Training model with updated data...")
     model.fit(
         x_train, y_train,
         validation_data=(x_val, y_val),
@@ -493,7 +523,6 @@ def update_existing_model():
     print("Predicting next lottery draw with updated model...")
     next_draw = predict_next_draw(model, scaled_df, window_size, scaler)
     print(f"Predicted numbers for next draw: {next_draw}")
-
 
 if __name__ == "__main__":
     # Set seeds for reproducibility - but use different seeds when updating

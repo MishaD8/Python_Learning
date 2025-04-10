@@ -30,6 +30,12 @@ def load_and_preprocess_data(filepath, add_features=True):
     # Load data
     data = pd.read_csv(r'G:\Мой диск\cybersecurity\Python for cybersecurity\Project_dataset\dataset.csv')
 
+    lottery_cols = [col for col in data.columns if col.startswith('num')]
+    if len(lottery_cols) > 6:
+        bonus_cols = lottery_cols[6:] # These are the columns to exclude
+        data = data.drop(columns=bonus_cols)
+        print(f"Excluded bonus number column(s): {bonus_cols}")
+
     # Convert date column to datetime
     if 'data' in data.columns:
         data['date'] = pd.to_datetime(data['data'])
@@ -86,15 +92,17 @@ def prepare_sequences(data, window_size=10):
     """
     x, y = [], []
 
-    # Get columns that represent lottery numbers
+    # Get only the first 6 lottery number columns
     lottery_cols = [col for col in data.columns if col.startswith('num')]
+    if len(lottery_cols) > 6:
+        lottery_cols = lottery_cols[:6]
 
     # Create sliding window sequences
-    for i in range(len(data) - window_size):
+    for i in range(len(data) - window_size): 
         # Input sequence (window_size previous draws with all features)
         x.append(data.iloc[i:i+window_size].values)
 
-        # Target (only the lottery numbers from the next draw)
+        # Target (only the 6 lottery numbers from the next draw)
         if lottery_cols:
             y.append(data.iloc[i+window_size][lottery_cols].values)
         else:
@@ -300,19 +308,35 @@ def predict_next_draw(model, data, window_size, scaler=None):
         scaler: Scaler used for normalization (if any)
 
     Returns:
-        Predicted lottery numbers
+        Predicted lottery numbers (only the first 6)
     """
     # Get the most recent window of data
     last_window = data.iloc[-window_size:].values
 
     # Reshape for model input (adding batch dimension)
     x_pred = last_window.reshape(1, window_size, data.shape[1])
-
+    
     # Generate prediction
     prediction = model.predict(x_pred)
 
     # Flatten the prediction if it's a multi-dimensional array
     prediction = prediction.flatten()
+
+    # Ensure we only take the first 6 predictions if there are more
+    if len(prediction) > 6:
+        prediction = prediction[:6]
+
+    # # Get the most recent window of data
+    # last_window = data.iloc[-window_size:].values
+
+    # # Reshape for model input (adding batch dimension)
+    # x_pred = last_window.reshape(1, window_size, data.shape[1])
+
+    # # Generate prediction
+    # prediction = model.predict(x_pred)
+
+    # # Flatten the prediction if it's a multi-dimensional array
+    # prediction = prediction.flatten()
 
     # Inverse transform if scaler was used
     if scaler is not None:
@@ -355,7 +379,7 @@ def predict_next_draw(model, data, window_size, scaler=None):
 
         rounded_prediction = np.array(unique_list)
 
-    return rounded_prediction
+    return rounded_prediction[:6]
 
 def main():
     """

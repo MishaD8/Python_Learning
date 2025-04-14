@@ -28,7 +28,10 @@ def load_and_preprocess_data(filepath, add_features=True):
         Processed dataframe and numeric data for modeling
     """
     # Load data
-    data = pd.read_csv(r'G:\Мой диск\cybersecurity\Python for cybersecurity\Project_dataset\dataset.csv')
+    # filepath = "G:\Мой диск\cybersecurity\Python for cybersecurity\Project_dataset\dataset.csv"
+    data = pd.read_csv(r'G:\Мой диск\cybersecurity\Python for cybersecurity\Project_lottery\dataset.csv')
+    
+    
 
     lottery_cols = [col for col in data.columns if col.startswith('num')]
     if len(lottery_cols) > 6:
@@ -389,7 +392,7 @@ def main():
     # 1. Load and preprocess 5 years of lottery data
     try:
         print("Loading and preprocessing data...")
-        full_data, numeric_data = load_and_preprocess_data(r'G:\Мой диск\cybersecurity\Python for cybersecurity\Project_dataset\dataset.csv')
+        full_data, numeric_data = load_and_preprocess_data(r'G:\Мой диск\cybersecurity\Python for cybersecurity\Project_lottery\dataset.csv')
         print(f"Loaded data with {len(full_data)} draws and {numeric_data.shape[1]} features")
     except Exception as e:
         print(f"Error loading data: {e}")
@@ -485,7 +488,7 @@ def update_existing_model():
     # First, load and preprocess the data
 
     print("Loading and preprocessing updated data...")
-    full_data, numeric_data = load_and_preprocess_data(r'G:\Мой диск\cybersecurity\Python for cybersecurity\Project_dataset\dataset.csv')
+    full_data, numeric_data = load_and_preprocess_data(r'G:\Мой диск\cybersecurity\Python for cybersecurity\Project_lottery\dataset.csv')
     print(f"Loaded data with {len(full_data)} draws and {numeric_data.shape[1]} features")
 
     # Scale the data

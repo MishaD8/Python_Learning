@@ -60,12 +60,11 @@ def safe_get_value(stats_list, stat_type, default=0):
             return value
     return default
 
-def format_date(date_string)
+def format_date(date_string):
     """Format date string to consistent format"""
     try:
         date_obj = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%S%z")
         return date_obj.strftime("%Y-%m-%d")
     except ValueError:
         return date_string # Return original if parsing fails
-    
     

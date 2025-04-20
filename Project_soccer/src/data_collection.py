@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 import logging
 
-from utils import fetch_api_data, safe_get_value, format_date, logger
+from Project_soccer.src.utils import fetch_api_data, safe_get_value, format_date, logger
 from config import LEAGUE_ID, SEASONS, OUTPUT_FILE, RATE_LIMIT_SLEEP
 
 # Check if output file exists to enable resuming

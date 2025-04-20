@@ -1,0 +1,22 @@
+[
+    {
+        "home_team": "Barcelona",
+        "away_team": "Real Madrid",
+        "season": 2024
+    },
+    {
+        "home_team": "Atletico Madrid",
+        "away_team": "Sevilla",
+        "season": 2024
+    },
+    {
+        "home_team": "Real Betis",
+        "away_team": "Valencia",
+        "season": 2024
+    },
+    {
+        "home_team": "Athletic Bilbao",
+        "away_team": "Villarreal",
+        "season": 2024
+    }
+]

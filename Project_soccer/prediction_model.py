@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report
 import joblib
 
-from utils import logger
+from Project_soccer.src.utils import logger
 from config import PROCESSED_DIR, SCORE_PATTERNS
 
 MODEL_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models')

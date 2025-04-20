@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import numpy as np
 
-from utils import logger
+from Project_soccer.src.utils import logger
 from config import OUTPUT_FILE, PROCESSED_DIR, SCORE_PATTERNS
 
 def calculate_score_pattern_features():

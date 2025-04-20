@@ -2,8 +2,8 @@ import os
 from datetime import datetime, timedelta
 import csv 
 
-from utils import fetch_api_data, logger
-from data_collection import process_fixture, process_fixtures
+from Project_soccer.src.utils import fetch_api_data, logger
+from Project_soccer.src.data_collection import process_fixture, process_fixtures
 from config import LEAGUE_ID, LAST_UPDATE_FILE, OUTPUT_FILE
 
 def update_recent_fixtures(days_back=7):

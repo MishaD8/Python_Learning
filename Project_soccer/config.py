@@ -31,3 +31,5 @@ SCORE_PATTERNS = [
     {'home_score': 1, 'away_score': 1, 'name': '1-1'},
     {'home_score': 1, 'away_score': 2, 'name': '1-2'}
 ]
+
+LAST_UPDATE_FILE = os.path.join(BASE_DATA_DIR, 'last_update.txt')

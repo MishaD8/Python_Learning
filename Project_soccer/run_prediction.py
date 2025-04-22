@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-
+import sys
+import os
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(parent_dir)
 import argparse
 import json
-from Project_soccer.prediction_model import train_prediction_model, predict_upcoming_match, batch_predict_matches
+from prediction_model import train_prediction_model, predict_upcoming_match, batch_predict_matches
 from src.utils import logger #type: ignore
 
 def parse_args():

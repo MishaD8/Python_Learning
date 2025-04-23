@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
-        "./Object Oriented Programming"
+        "./Object Oriented Programming",
+        "./Project_soccer/src"
     ]
 }

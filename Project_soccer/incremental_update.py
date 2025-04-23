@@ -2,9 +2,12 @@ import os
 from datetime import datetime, timedelta
 import csv 
 
-from Project_soccer.src.utils import fetch_api_data, logger
-from Project_soccer.src.data_collection import process_fixture, process_fixtures
-from config import LEAGUE_ID, LAST_UPDATE_FILE, OUTPUT_FILE
+from src.utils import logger
+from config import OUTPUT_FILE, PROCESSED_DIR, SCORE_PATTERNS
+
+# from Project_soccer.src.utils import fetch_api_data, logger
+# from Project_soccer.src.data_collection import process_fixture, process_fixtures
+# from config import LEAGUE_ID, LAST_UPDATE_FILE, OUTPUT_FILE
 
 def update_recent_fixtures(days_back=7):
     """Fetch and process only recent fixtures from the last n days"""

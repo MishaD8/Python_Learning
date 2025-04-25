@@ -2,8 +2,9 @@ import os
 from datetime import datetime, timedelta
 import csv 
 
-from src.utils import logger
-from config import OUTPUT_FILE, PROCESSED_DIR, SCORE_PATTERNS
+from src.utils import fetch_api_data, logger
+from config import LAST_UPDATE_FILE, LEAGUE_ID, OUTPUT_FILE, PROCESSED_DIR, SCORE_PATTERNS
+from data_collection import process_fixtures
 
 # from Project_soccer.src.utils import fetch_api_data, logger
 # from Project_soccer.src.data_collection import process_fixture, process_fixtures

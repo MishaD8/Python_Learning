@@ -14,8 +14,6 @@ from tensorflow.keras.optimizers import Adam # type: ignore
 from keras.losses import MSE as mean_squared_error 
 from keras.metrics import MAE as mean_absolute_error 
 
-
-
 def load_and_preprocess_data(filepath, add_features=True):
     """
     Load and preprocess 5 years of lottery data.
@@ -244,7 +242,7 @@ def visualize_training(history):
     # Plot learning rate if available
     if 'lr' in history.history:
         plt.subplot(2, 2, 3)
-        plt.plot(history,history['lr'])
+        plt.plot(history.history['lr'])
         plt.title('Learning Rate')
         plt.ylabel('Learning Rate')
         plt.xlabel('Epoch')
@@ -563,3 +561,509 @@ if __name__ == "__main__":
 
     # Option 2: Update existing model with new data
     update_existing_model()
+
+
+
+# # Fix for visualize_training function
+# def visualize_training(history):
+#     """
+#     Create detailed visualizations of training progress.
+    
+#     Args:
+#         history: Training history from model.fit()
+#     """
+#     plt.figure(figsize=(15, 10))
+
+#     # Plot training & validation loss
+#     plt.subplot(2, 2, 1)
+#     plt.plot(history.history['loss'], label='Training Loss')
+#     plt.plot(history.history['val_loss'], label='Validation Loss')
+#     plt.title('Model Loss')
+#     plt.ylabel('Loss')
+#     plt.xlabel('Epoch')
+#     plt.legend(loc='upper right')
+
+#     # Plot training & validation MAE
+#     plt.subplot(2, 2, 2)
+#     plt.plot(history.history['mae'], label='Training MAE')
+#     plt.plot(history.history['val_mae'], label='Validation MAE')
+#     plt.title('Model MAE')
+#     plt.ylabel('Mean Absolute Error')
+#     plt.xlabel('Epoch')
+#     plt.legend(loc='upper right')
+
+#     # Plot learning rate if available
+#     if 'lr' in history.history:
+#         plt.subplot(2, 2, 3)
+#         plt.plot(history.history['lr'])  # Fixed this line
+#         plt.title('Learning Rate')
+#         plt.ylabel('Learning Rate')
+#         plt.xlabel('Epoch')
+#         plt.yscale('log')
+
+#     plt.tight_layout()
+#     plt.show()
+
+# # Improved data preprocessing with cyclical encoding for time features
+# def load_and_preprocess_data(filepath, add_features=True):
+#     """
+#     Load and preprocess lottery data with enhanced feature engineering.
+    
+#     Args:
+#         filepath: Path to the CSV file with lottery data
+#         add_features: Whether to add additional time-based features
+    
+#     Returns:
+#         Processed dataframe and numeric data for modeling
+#     """
+#     # Load data
+#     data = pd.read_csv(filepath)
+    
+#     # Standardize column names
+#     data.columns = [col.lower() for col in data.columns]
+    
+#     # Handle date column naming inconsistency
+#     if 'data' in data.columns and 'date' not in data.columns:
+#         data.rename(columns={'data': 'date'}, inplace=True)
+    
+#     # Filter only needed lottery number columns 
+#     lottery_cols = [col for col in data.columns if col.startswith('num')]
+#     if len(lottery_cols) > 6:
+#         bonus_cols = lottery_cols[6:]  # These are the columns to exclude
+#         data = data.drop(columns=bonus_cols)
+#         print(f"Excluded bonus number column(s): {bonus_cols}")
+
+#     # Convert date column to datetime
+#     if 'date' in data.columns:
+#         data['date'] = pd.to_datetime(data['date'])
+
+#     # Sort by date (ascending order)
+#     if 'date' in data.columns:
+#         data = data.sort_values('date').reset_index(drop=True)
+
+#     # Add time-based features if requested
+#     if add_features and 'date' in data.columns:
+#         # Standard time features
+#         data['day_of_week'] = data['date'].dt.dayofweek
+#         data['day_of_year'] = data['date'].dt.dayofyear
+#         data['month'] = data['date'].dt.month
+#         data['quarter'] = data['date'].dt.quarter
+#         data['year'] = data['date'].dt.year
+#         data['week_of_year'] = data['date'].dt.isocalendar().week
+        
+#         # Add cyclical encoding for time features (better than one-hot for periodic data)
+#         # Encode day of week (0-6) as cyclical feature
+#         data['day_of_week_sin'] = np.sin(2 * np.pi * data['day_of_week'] / 7)
+#         data['day_of_week_cos'] = np.cos(2 * np.pi * data['day_of_week'] / 7)
+        
+#         # Encode month (1-12) as cyclical feature
+#         data['month_sin'] = np.sin(2 * np.pi * data['month'] / 12)
+#         data['month_cos'] = np.cos(2 * np.pi * data['month'] / 12)
+        
+#         # Encode day of year (1-366) as cyclical feature
+#         data['day_of_year_sin'] = np.sin(2 * np.pi * data['day_of_year'] / 366)
+#         data['day_of_year_cos'] = np.cos(2 * np.pi * data['day_of_year'] / 366)
+        
+#         # Drop original categorical features that have been cyclically encoded
+#         data = data.drop(columns=['day_of_week', 'month', 'day_of_year'])
+        
+#         # Keep quarter as one-hot encoded
+#         data = pd.get_dummies(data, columns=['quarter'], drop_first=False)
+    
+#     # Add frequency analysis features
+#     lottery_number_cols = [col for col in data.columns if col.startswith('num')]
+#     if len(lottery_number_cols) > 0:
+#         # Calculate historical frequency of each number
+#         all_numbers = pd.Series([num for nums in data[lottery_number_cols].values for num in nums])
+#         frequency = all_numbers.value_counts().to_dict()
+        
+#         # Calculate "hotness" and "coldness" of numbers (based on recent draws)
+#         window_size = min(20, len(data))  # Use last 20 draws or all if less
+#         recent_numbers = pd.Series([num for nums in data[lottery_number_cols].tail(window_size).values for num in nums])
+#         recent_frequency = recent_numbers.value_counts().to_dict()
+        
+#         # Add these as features to each draw
+#         for i, col in enumerate(lottery_number_cols):
+#             data[f'{col}_freq'] = data[col].map(lambda x: frequency.get(x, 0))
+#             data[f'{col}_recent_freq'] = data[col].map(lambda x: recent_frequency.get(x, 0))
+    
+#     # Select numeric columns for the model (exclude date column)
+#     numeric_cols = data.select_dtypes(include=[np.number]).columns.tolist()
+#     if 'date' in numeric_cols:
+#         numeric_cols.remove('date')
+
+#     numeric_data = data[numeric_cols]
+
+#     return data, numeric_data
+
+# # Improved model with attention mechanism
+# def build_enhanced_model_with_attention(input_shape, output_shape, learning_rate=0.001):
+#     """
+#     Build an enhanced LSTM model with attention mechanism for lottery prediction.
+    
+#     Args:
+#         input_shape: Shape of input sequences (window_size, features)
+#         output_shape: Number of output values (typically 6 for lottery)
+#         learning_rate: Learning rate for Adam optimizer
+    
+#     Returns:
+#         Compiled Keras model
+#     """
+#     # Import necessary layers for attention mechanism
+#     from tensorflow.keras.layers import Layer, Permute, Multiply, Reshape, TimeDistributed, Lambda, Concatenate
+#     import tensorflow.keras.backend as K
+    
+#     # Custom attention layer
+#     class AttentionLayer(Layer):
+#         def __init__(self, **kwargs):
+#             super(AttentionLayer, self).__init__(**kwargs)
+        
+#         def build(self, input_shape):
+#             self.W = self.add_weight(name="attention_weight", shape=(input_shape[-1], 1),
+#                                      initializer="normal")
+#             self.b = self.add_weight(name="attention_bias", shape=(input_shape[1], 1),
+#                                      initializer="zeros")
+#             super(AttentionLayer, self).build(input_shape)
+        
+#         def call(self, x):
+#             # Alignment scores
+#             e = K.tanh(K.dot(x, self.W) + self.b)
+#             # Remove dimension of size 1
+#             e = K.squeeze(e, axis=-1)
+#             # Compute the weights
+#             alpha = K.softmax(e)
+#             # Weighted sum (context vector)
+#             context = K.sum(x * K.expand_dims(alpha, axis=-1), axis=1)
+#             return context
+    
+#     # Build model
+#     inputs = keras.Input(shape=input_shape)
+    
+#     # First bidirectional LSTM layer
+#     x = Bidirectional(LSTM(128, return_sequences=True))(inputs)
+#     x = BatchNormalization()(x)
+#     x = Dropout(0.3)(x)
+    
+#     # Second bidirectional LSTM layer
+#     x = Bidirectional(LSTM(128, return_sequences=True))(x)
+#     x = BatchNormalization()(x)
+#     x = Dropout(0.3)(x)
+    
+#     # Apply attention
+#     x = AttentionLayer()(x)
+    
+#     # Dense layers
+#     x = Dense(128, activation='relu')(x)
+#     x = BatchNormalization()(x)
+#     x = Dropout(0.4)(x)
+    
+#     x = Dense(64, activation='relu')(x)
+#     x = BatchNormalization()(x)
+#     x = Dropout(0.3)(x)
+    
+#     # Output layer
+#     outputs = Dense(output_shape)(x)
+    
+#     # Create model
+#     model = keras.Model(inputs=inputs, outputs=outputs)
+    
+#     # Use Adam optimizer with custom learning rate
+#     optimizer = Adam(learning_rate=learning_rate)
+    
+#     model.compile(
+#         optimizer=optimizer,
+#         loss='mse',
+#         metrics=['mae']
+#     )
+    
+#     return model
+
+# # Improved prediction function with probability distribution
+# def predict_next_draw_probabilistic(model, data, window_size, scaler=None, num_simulations=1000):
+#     """
+#     Predict the next lottery draw with probability estimation.
+    
+#     Args:
+#         model: Trained model
+#         data: Full preprocessed dataset
+#         window_size: Window size used for model training
+#         scaler: Scaler used for normalization (if any)
+#         num_simulations: Number of Monte Carlo simulations to run
+    
+#     Returns:
+#         Dictionary with predicted numbers and their probabilities
+#     """
+#     # Get the most recent window of data
+#     last_window = data.iloc[-window_size:].values
+    
+#     # Reshape for model input (adding batch dimension)
+#     x_pred = last_window.reshape(1, window_size, data.shape[1])
+    
+#     # Generate base prediction
+#     prediction = model.predict(x_pred).flatten()
+    
+#     # Ensure we only take the first 6 predictions if there are more
+#     if len(prediction) > 6:
+#         prediction = prediction[:6]
+    
+#     # Inverse transform if scaler was used
+#     if scaler is not None:
+#         # Create dummy array with same shape as the original data
+#         dummy = np.zeros((1, scaler.n_features_in_))
+#         # Place the prediction in the correct columns
+#         dummy[0, :len(prediction)] = prediction
+#         # Inverse transform
+#         prediction = scaler.inverse_transform(dummy)[0, :len(prediction)]
+    
+#     # Round to integers
+#     rounded_prediction = np.round(prediction).astype(int)
+    
+#     # Define valid range for lottery numbers
+#     min_val, max_val = 1, 49  # Adjust based on your lottery
+    
+#     # Run Monte Carlo simulations with small random perturbations
+#     simulations = []
+#     for _ in range(num_simulations):
+#         # Add small random noise to the prediction
+#         noisy_pred = prediction + np.random.normal(0, 0.5, len(prediction))
+#         noisy_pred = np.clip(noisy_pred, min_val, max_val)
+#         noisy_pred = np.round(noisy_pred).astype(int)
+        
+#         # Ensure uniqueness
+#         while len(set(noisy_pred)) < len(noisy_pred):
+#             for i in range(len(noisy_pred)):
+#                 if list(noisy_pred).count(noisy_pred[i]) > 1:
+#                     noisy_pred[i] = np.random.randint(min_val, max_val + 1)
+        
+#         simulations.append(tuple(sorted(noisy_pred)))
+    
+#     # Calculate probabilities based on simulation frequency
+#     from collections import Counter
+#     simulation_counts = Counter(simulations)
+#     total_sims = len(simulations)
+    
+#     # Get the most common combinations and their probabilities
+#     most_common_draws = simulation_counts.most_common(10)
+#     result = {
+#         "predicted_numbers": list(rounded_prediction),
+#         "top_combinations": [
+#             {"combination": list(combo), "probability": count/total_sims}
+#             for combo, count in most_common_draws
+#         ]
+#     }
+    
+#     return result
+
+# # Improved evaluation metrics
+# def evaluate_predictions_advanced(model, x_test, y_test, scaler=None):
+#     """
+#     Evaluate model predictions with advanced metrics for lottery prediction.
+    
+#     Args:
+#         model: Trained model
+#         x_test: Test input sequences
+#         y_test: Actual lottery numbers
+#         scaler: Scaler used for normalization (if any)
+    
+#     Returns:
+#         Dictionary with various evaluation metrics
+#     """
+#     # Make predictions
+#     y_pred = model.predict(x_test)
+    
+#     # Inverse transform if scaler was used
+#     if scaler is not None:
+#         # Create dummy arrays with same shape as the original data
+#         dummy_pred = np.zeros((y_pred.shape[0], scaler.n_features_in_))
+#         dummy_test = np.zeros((y_test.shape[0], scaler.n_features_in_))
+        
+#         # Place the values in the correct columns
+#         dummy_pred[:, :y_pred.shape[1]] = y_pred
+#         dummy_test[:, :y_test.shape[1]] = y_test
+        
+#         # Inverse transform
+#         y_pred = scaler.inverse_transform(dummy_pred)[:, :y_test.shape[1]]
+#         y_test = scaler.inverse_transform(dummy_test)[:, :y_test.shape[1]]
+    
+#     # Round predictions for lottery numbers
+#     y_pred_rounded = np.round(y_pred).astype(int)
+    
+#     # Clip to valid range
+#     min_val, max_val = 1, 49  # Adjust based on your lottery
+#     y_pred_rounded = np.clip(y_pred_rounded, min_val, max_val)
+    
+#     # Ensure uniqueness in each prediction (row)
+#     for i in range(y_pred_rounded.shape[0]):
+#         values = y_pred_rounded[i]
+#         unique_values = set()
+#         for j in range(len(values)):
+#             if values[j] in unique_values:
+#                 # Find a number not in the set
+#                 for new_val in range(min_val, max_val+1):
+#                     if new_val not in unique_values:
+#                         values[j] = new_val
+#                         break
+#             unique_values.add(values[j])
+    
+#     # Calculate basic error metrics
+#     mae = np.abs(y_test - y_pred_rounded).mean()
+    
+#     # Calculate hit rates (how many numbers match)
+#     hit_rates = []
+#     for i in range(len(y_test)):
+#         actual_set = set(y_test[i])
+#         pred_set = set(y_pred_rounded[i])
+#         hits = len(actual_set.intersection(pred_set))
+#         hit_rates.append(hits)
+    
+#     hit_distribution = {i: hit_rates.count(i) for i in range(7)}  # 0-6 hits
+    
+#     # Calculate average number of hits
+#     avg_hits = sum(hit_rates) / len(hit_rates)
+    
+#     # Calculate expected value for random guessing
+#     # For a 6/49 lottery, probability of k hits is:
+#     # P(k hits) = C(6,k) * C(43,6-k) / C(49,6)
+#     import math
+#     def combination(n, k):
+#         return math.factorial(n) // (math.factorial(k) * math.factorial(n - k))
+    
+#     expected_hits_random = sum(
+#         k * combination(6, k) * combination(43, 6-k) / combination(49, 6)
+#         for k in range(7)
+#     )
+    
+#     # Return comprehensive evaluation results
+#     return {
+#         "MAE": mae,
+#         "Average_Hits": avg_hits,
+#         "Hit_Distribution": hit_distribution,
+#         "Random_Expected_Hits": expected_hits_random,
+#         "Performance_vs_Random": (avg_hits / expected_hits_random) * 100  # As percentage
+#     }
+
+# # Main function with improvements
+# def main_improved():
+#     """
+#     Main function to run the improved lottery prediction process.
+#     """
+#     # 1. Load and preprocess lottery data with enhanced features
+#     try:
+#         print("Loading and preprocessing data with enhanced features...")
+#         full_data, numeric_data = load_and_preprocess_data(
+#             r'G:\Мой диск\cybersecurity\Python for cybersecurity\Project_lottery\dataset.csv'
+#         )
+#         print(f"Loaded data with {len(full_data)} draws and {numeric_data.shape[1]} features")
+#     except Exception as e:
+#         print(f"Error loading data: {e}")
+#         return
+    
+#     # 2. Scale the data
+#     print("Scaling data...")
+#     scaler = StandardScaler()
+#     scaled_data = scaler.fit_transform(numeric_data)
+#     scaled_df = pd.DataFrame(scaled_data, columns=numeric_data.columns)
+    
+#     # 3. Create sequences
+#     print("Creating sequences...")
+#     window_size = 15  # Increased window size for more context
+#     x, y = prepare_sequences(scaled_df, window_size)
+#     print(f"Created {len(x)} sequences with shape {x.shape}")
+    
+#     # 4. Split data (time series - keep chronological order)
+#     # Use earlier 70% for training, middle 15% for validation, last 15% for testing
+#     train_size = int(0.7 * len(x))
+#     val_size = int(0.15 * len(x))
+    
+#     x_train, y_train = x[:train_size], y[:train_size]
+#     x_val, y_val = x[train_size:train_size+val_size], y[train_size:train_size+val_size]
+#     x_test, y_test = x[train_size+val_size:], y[train_size+val_size:]
+    
+#     print(f"Training set: {x_train.shape}")
+#     print(f"Validation set: {x_val.shape}")
+#     print(f"Test set: {x_test.shape}")
+    
+#     # 5. Build enhanced model with attention
+#     print("Building improved model with attention...")
+#     input_shape = (x_train.shape[1], x_train.shape[2])
+#     output_shape = y_train.shape[1]
+#     model = build_enhanced_model_with_attention(input_shape, output_shape)
+#     model.summary()
+    
+#     # 6. Train model with improved callbacks
+#     print("Training model...")
+#     callbacks = [
+#         # Early stopping to prevent overfitting
+#         EarlyStopping(
+#             monitor='val_loss',
+#             patience=30,
+#             restore_best_weights=True,
+#             verbose=1
+#         ),
+        
+#         # Model checkpoint to save best model
+#         ModelCheckpoint(
+#             'best_lottery_model.h5',
+#             monitor='val_loss',
+#             save_best_only=True,
+#             verbose=1
+#         ),
+        
+#         # Reduce learning rate when plateau is reached
+#         ReduceLROnPlateau(
+#             monitor='val_loss',
+#             factor=0.5,
+#             patience=10,
+#             min_lr=0.00001,
+#             verbose=1
+#         ),
+        
+#         # Add TensorBoard for better visualization
+#         tf.keras.callbacks.TensorBoard(
+#             log_dir=f'./logs/lottery_model_{datetime.now().strftime("%Y%m%d-%H%M%S")}',
+#             histogram_freq=1
+#         )
+#     ]
+    
+#     history = model.fit(
+#         x_train, y_train,
+#         validation_data=(x_val, y_val),
+#         epochs=300,
+#         batch_size=32,
+#         callbacks=callbacks,
+#         verbose=1
+#     )
+    
+#     # 7. Visualize training
+#     print("Visualizing training progress...")
+#     visualize_training(history)
+    
+#     # 8. Evaluate on test set with advanced metrics
+#     print("Evaluating model with advanced metrics...")
+#     eval_results = evaluate_predictions_advanced(model, x_test, y_test, scaler)
+#     print("\nAdvanced evaluation results:")
+#     for key, value in eval_results.items():
+#         print(f"{key}: {value}")
+    
+#     # 9. Predict next draw with probability distribution
+#     print("\nPredicting next lottery draw with probability distribution...")
+#     next_draw_prob = predict_next_draw_probabilistic(model, scaled_df, window_size, scaler)
+#     print(f"Predicted numbers for next draw: {next_draw_prob['predicted_numbers']}")
+#     print("\nTop predicted combinations and their probabilities:")
+#     for i, combo in enumerate(next_draw_prob['top_combinations'][:5]):
+#         print(f"{i+1}. {combo['combination']} - {combo['probability']*100:.2f}%")
+    
+#     # 10. Save the model for future use
+#     model.save('improved_lottery_prediction_model.h5')
+#     print("Model saved as 'improved_lottery_prediction_model.h5'")
+    
+#     return model, next_draw_prob
+
+
+
+
+
+
+
+
+

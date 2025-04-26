@@ -4,3 +4,6 @@
 a = 'Python'
 
 # write your code under this line
+
+print(a)
+print(type(a))

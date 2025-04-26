@@ -8,3 +8,5 @@ e = 750
 
 
 
+f = d - e
+print(f)

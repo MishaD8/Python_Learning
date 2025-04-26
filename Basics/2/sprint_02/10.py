@@ -8,4 +8,8 @@ b = 9
 
 
 
+c = a * b
 
+d = c + a
+
+print(d)

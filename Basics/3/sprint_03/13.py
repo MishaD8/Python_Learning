@@ -5,3 +5,6 @@ a = 2
 
 # write your code under this line
 
+b = a ** 3
+
+print(b)

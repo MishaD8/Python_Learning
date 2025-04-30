@@ -9,3 +9,4 @@ b = "полон"
 # write your code under this line
 
 
+print('Он {}… Он без дна… без конца… и… о Боже, он {} звезд!'.format(a,b))

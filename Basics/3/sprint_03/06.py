@@ -10,3 +10,8 @@ b = 'best'
 
 
 
+c = (str(a) + b)
+
+print(c)
+print(type(c))
+

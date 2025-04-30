@@ -5,3 +5,6 @@ a = 256
 
 # write your code under this line
 
+b = a ** .5
+
+print(b)

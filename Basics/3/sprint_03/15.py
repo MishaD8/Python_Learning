@@ -5,3 +5,6 @@ a = -9
 
 # write your code under this line
 
+b = (abs(a))
+
+print(b)

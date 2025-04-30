@@ -6,3 +6,6 @@ a = 8
 
 # write your code under this line
 
+b = a % 3
+
+print(b)

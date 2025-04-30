@@ -7,3 +7,9 @@
 
 
 
+a = 'ABBA'
+b = 'best'
+
+c = a + b
+
+print(c)

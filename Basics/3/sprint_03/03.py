@@ -6,4 +6,4 @@ a = 'Android vs iOS'
 # write your code under this line
 
 
-
+print(len(a))

@@ -8,3 +8,7 @@ b = 'best'
 # write your code under this line
 
 
+c = ((len(a)) + (len(b)))
+
+print(c)
+print(type(c))

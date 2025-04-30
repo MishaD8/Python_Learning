@@ -5,4 +5,6 @@
 # write your code under this line
 
 
+a, b, c = 11, 12, "Hello"
 
+print(a,b,c)

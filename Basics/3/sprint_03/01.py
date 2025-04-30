@@ -4,4 +4,7 @@
 # write your code under this line
 
 
+a = True
+A = 3
 
+print(a, A)

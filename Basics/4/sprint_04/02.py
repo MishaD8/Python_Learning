@@ -4,5 +4,9 @@
 
 s = 'hhhh'
 
-# def f02(s) :
+def f02(s) :
+    return len(s)
+
+result = f02(s)
+print(result)
 

@@ -7,6 +7,6 @@ c = 'game'
 
 # write your code under this line
 
-d = (a) + '' (b) + '' (c)
+d = (a) + (b) + (c)
 
 print(d)

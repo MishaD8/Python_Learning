@@ -4,4 +4,8 @@
 
 s = 4
 
-# def f03(s) :
+def f03(s) :
+    return type(s)
+
+result = f03(s)
+print(result)

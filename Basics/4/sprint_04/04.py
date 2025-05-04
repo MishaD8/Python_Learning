@@ -4,5 +4,8 @@
 
 num = 4.5
 
-# def f04(n) :
+def f04(n) :
+    return round(n)
+
+print(f04(num))
 

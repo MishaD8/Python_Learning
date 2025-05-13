@@ -6,6 +6,13 @@
 # во всех остальных случаях - возвращает пустую строку
 
 def f12(s):
-    pass
+    if s == 'http' or s == 'https':
+        return 'url'
+    elif s == '@':
+        return 'email'
+    elif s == 'ftp':
+        return 'ftp'
+    else:
+        return ''
 
 print(f12('http'))

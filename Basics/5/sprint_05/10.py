@@ -7,6 +7,13 @@
 # напоминаю везде где встречаются символы - это латинские символы.
 
 def f10(k):
-    pass
+    if k == 0 or k == 4:
+        return 'x'
+    elif k == 1 or k == 3:
+        return '1'
+    elif k == 2 or k == 5:
+        return '0'
+    else:
+        return 'invalid value'
 
 print(f10(0))

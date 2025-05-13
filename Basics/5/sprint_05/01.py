@@ -3,6 +3,16 @@
 # pass - ключевое слово позволяющее писать "пустые" функции. Удаляете pass и пишите код функции.
 
 def f01(a,b) :
-    pass
+    if a > b:
+        return a
+    else:
+        return b
 
 print(f01(22,33))
+
+# or
+
+def f02(a,b):
+    return max(a,b)
+
+print(f02(50,100))

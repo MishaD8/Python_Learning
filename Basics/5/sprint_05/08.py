@@ -3,7 +3,20 @@
 # Усложним задачу. Внутри if который проверяет знак деления добавьте еще одну проверку - если число b равно нулю - то возвращает 0.
 
 def f08(a, b, s):
-    pass
+    if s == '+':
+        return a + b
+    elif s == '-':
+        return a - b
+    elif s == '/':
+        if b == 0:
+            return 0
+        else:
+            return a / b
+        return a / b
+    elif s == '*':
+        return a * b
+    else:
+        return None
 
 
 print(f08(5, 7, '*'))

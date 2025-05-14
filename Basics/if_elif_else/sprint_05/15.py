@@ -2,7 +2,10 @@
 # Напишите функцию f15, которая принимает логин и пароль. Если логин не пустая строка и пароль больше 5 символов возвращает True. В остальных случаях - False.
 
 def f15(login, password):
-    pass
+    if login != '' and len(password) > 5:
+        return True
+    else:
+        return False
     
 
 

@@ -557,10 +557,10 @@ if __name__ == "__main__":
     # Uncomment the option you want to run
 
     # Option 1: Run full training from scratch
-    # main()
+    main()
 
     # Option 2: Update existing model with new data
-    update_existing_model()
+    # update_existing_model()
 
 
 

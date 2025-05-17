@@ -31,7 +31,7 @@ f01(10)
 
 def f02(n):
     i = 0
-    while i <= 10:
+    while i <= n:
         print(i)
         i += 1
 

@@ -8,7 +8,13 @@
 # write your code under this line
 
 def f11 (a) :
-    pass
+    total = 0
+    i = 0
+    while i <= a:
+        total += i
+        i += 1
+    return total
+
 
 result = f11(4)
 print (result)

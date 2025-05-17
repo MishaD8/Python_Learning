@@ -5,7 +5,14 @@
 # write your code under this line
 
 def f03 (n) :
-    pass
+    out = ''
+    i = 0
+    while i <= n:
+        out += str(i)
+        if i < n:
+            out += '_'
+        i += 1
+    print(out)
 
 f03(3) # ожидаю 0_1_2_3_
 

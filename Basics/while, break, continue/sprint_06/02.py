@@ -6,3 +6,26 @@
 
 
 
+def f01(n):
+    i = 5
+    out = ''
+    while i < 10:
+        out += str(i) + '_'
+        i += 1
+    print(out)
+
+#f01(11)
+
+# option 2 without underlines
+
+def f02(n):
+    i = 5
+    out = ''
+    while i < 10:
+        out += str(i)
+        if i < 9:
+            out += '_'
+        i += 1
+    print(out)
+
+f02(10)

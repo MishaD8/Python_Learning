@@ -17,3 +17,22 @@
 
 # write your code under this line
 
+def f01(n):
+    out = ''
+    i = 0
+    while i <= n:
+        out = out + str(i) + '\n'
+        i = i + 1
+    print(out)
+
+f01(10)
+
+# option 2
+
+def f02(n):
+    i = 0
+    while i <= 10:
+        print(i)
+        i += 1
+
+f02(10)

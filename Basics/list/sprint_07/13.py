@@ -4,11 +4,13 @@
 
 # write your code under this line
 def f13 (l1, l2) :
-    pass
-
+    l1.extend(l2)
+    return l1
 
 list1 = ['a', 'b']
 list2 = [11, 22]
+
+
 
 result = f13(list1, list2)
 print(result)

@@ -1,10 +1,13 @@
 # itgid.info - python 2023
 
-# Напишите функцию f14, которая получает list и индекс. Функция удаляет запись с индексом index из list. Возвращает list.
+# Напишите функцию f14, которая получает list и индекс.
+#  Функция удаляет запись с индексом index из list. Возвращает list.
 
 # write your code under this line
 def f14 (ct, index) :
-    pass
+    if 0 <= index < len(ct):
+        del ct[index]
+    return ct
 
 
 list1 = ['a', 'b', 'c', 'd', 'e']

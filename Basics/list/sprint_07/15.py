@@ -4,7 +4,9 @@
 
 # write your code under this line
 def f15 (ct) :
-    pass
+    if len(ct) > 5:
+        ct.clear()
+    return ct
 
 
 list1 = ['a', 'b', 'c', 'd', 'e']

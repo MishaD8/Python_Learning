@@ -5,13 +5,13 @@
 
 # write your code under this line
 def f16 (ct) :
-    list1 = [11, 12, 13]
     out = ''
     i = 0
-    while i < len(list1):
-        out += str(list1[i]) + '_'
-        i += i + 1
-    print(out)
+    while i < len(ct):
+        out += str(ct[i]) + '_'
+        i += 1
+    return out
 
+list1 = [11, 12, 13]
 result = f16(list1)
 print(result) # ожидаю 11_12_13_

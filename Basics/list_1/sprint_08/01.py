@@ -6,9 +6,14 @@
 # write your code under this line
 
 def f01 (f) :
-    pass
+    i = 0
+    count = 0
+    while i < len(f):
+        count += f[i]
+        i += 1
+    return count
 
 
 b = [ 11, -3, 4, 12, 7, -8]
 result = f01(b)
-print (b)
+print (result)

@@ -17,3 +17,13 @@ def f11 (f) :
 b = [8, 3, 5, 11, -2, 1, 15, 7]
 result = f11(b)
 print (result)
+
+def f111(f):
+    for i in range (len(f)):
+        if f[i] < 0:
+            return f[i]
+    return "there are no negative numbers" 
+
+b = [8, 3, 5, 11, -2, 1, 15, 7]
+result111 = f111(b)
+print(result111)

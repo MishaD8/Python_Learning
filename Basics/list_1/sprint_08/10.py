@@ -18,3 +18,16 @@ def f10 (f) :
 b = [8, 3, 5,-11, 2, 1, 15, 7]
 result = f10(b)
 print (result)
+
+
+def f100(f):
+    
+    for i in range(len(f)): 
+        if f[i] < 0:
+            return i
+    return "no negative numbers"
+    
+
+b = [8, 3, 5, -11, 2, 1, 15, 7]
+result100 = f100(b)
+print(result100)

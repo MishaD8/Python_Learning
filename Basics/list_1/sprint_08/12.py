@@ -21,3 +21,16 @@ def f12 (f) :
 b = [2, 3, 11, 5, 6, 9, 12, -4]
 result = f12(b)
 print (result)
+
+
+def f112(f):
+    max_index = 0
+    for i in range(1, len(f)):
+        if f[i] > f[max_index]:
+            max_index = i
+    return max_index
+
+b = [2, 3, 11, 5, 6, 9, 12, -4]
+result112 = f112(b)
+print(result112)
+

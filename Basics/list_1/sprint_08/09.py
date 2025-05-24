@@ -18,3 +18,15 @@ def f09 (f) :
 b = [8, 3, 5, 11, 2, 1, 15, 7]
 result = f09(b)
 print (result)
+
+
+def f009(f):
+    min_value = f[0]
+    for item in f:
+        if item < min_value:
+            min_value = item
+    return min_value
+
+b = [8, 3, 5, 11, 2, 1, 15, 7]
+result009 = f009(b)
+print(result009)

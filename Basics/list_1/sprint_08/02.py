@@ -17,3 +17,14 @@ def f02 (f) :
 b = [1, 2, 4, 5, 2]
 result = f02(b)
 print (result)
+
+
+def f002(f):
+    product = 1
+    for item in f:
+        product *= item
+    return product
+
+b = [1,2,4,5,2]
+result002 = f002(b)
+print (result002)

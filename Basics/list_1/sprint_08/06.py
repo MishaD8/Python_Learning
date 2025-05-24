@@ -18,3 +18,15 @@ def f06 (f) :
 b = [1, 2, 5, 11, 2, 1, 15, 3, 15]
 result = f06(b)
 print (result)
+
+
+def f006(f):
+    product = 1
+    for item in f:
+        if item < 10:
+            product *= item
+    return product
+    
+b = [1, 2, 5, 11, 2, 1, 15, 3, 15]
+result006 = f006(b)
+print(result006)

@@ -18,3 +18,16 @@ def f03 (f) :
 b = [1, -2, 4, 5, 2, 7, -11]
 result = f03(b)
 print (result)
+
+
+
+def f003(f):
+    count = 0
+    for item in f:
+        if item > 0:
+            count += item
+    return count
+
+b = [1, -2, 4, 5, 2, 7, -11]
+result003 = f003(b)
+print (result003)

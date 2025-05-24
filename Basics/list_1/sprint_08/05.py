@@ -18,3 +18,16 @@ def f05 (f) :
 b = [1, -2, 4, 5, 2, 7, -11, 22]
 result = f05(b)
 print (result)
+
+
+
+def f005(f):
+    count = 0
+    for i in range(len(f)):
+        if i % 2 != 0:
+            count += f[i]
+    return count
+
+b = [1, -2, 4, 5, 2, 7, -11, 22]
+result005 = f005(b)
+print(result005)

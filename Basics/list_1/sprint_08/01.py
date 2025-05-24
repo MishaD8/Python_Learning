@@ -17,3 +17,14 @@ def f01 (f) :
 b = [ 11, -3, 4, 12, 7, -8]
 result = f01(b)
 print (result)
+
+
+def f001(f) :
+    count = 0
+    for item in f:
+        count += item
+    return count
+
+b = [11, -3, 4, 12, 7, -8]
+result001 = f001(b)
+print (result001)

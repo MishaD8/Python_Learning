@@ -19,3 +19,15 @@ def f04 (f) :
 b = [1, -2, 4, 5, 2, 7, -11]
 result = f04(b)
 print (result)
+
+
+def f004(f):
+    count = 0
+    for item in f:
+        if item % 2 == 0:
+            count += item
+    return count
+
+b = [1, -2, 4, 5, 2, 7, -11]
+result004 = f004(b)
+print(result004)

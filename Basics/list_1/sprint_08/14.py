@@ -17,3 +17,14 @@ def f14 (f) :
 b = [22, 33, 44, -55, 66]
 result = f14(b)
 print (result)
+
+
+def f114(f):
+    for i in range(len(f)):
+        if f[i] <= 0:
+            return False
+    return True
+
+b = [22, 33, 44, -55, 66]
+result114 = f114(b)
+print(result114)

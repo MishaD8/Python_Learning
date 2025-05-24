@@ -19,3 +19,16 @@ def f13 (f) :
 b = [22, 33, 44, 55]
 result = f13(b)
 print (result)
+
+
+def f113(f):
+    total = 0
+    for i in range(len(f)):
+        total += f[i]
+        if total > 100:
+            return True
+    return False
+
+b = [22, 33, 44, 55]
+result113 = f113(b)
+print(result113)

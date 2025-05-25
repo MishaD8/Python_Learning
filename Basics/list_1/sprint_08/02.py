@@ -19,6 +19,7 @@ result = f02(b)
 print (result)
 
 
+
 def f002(f):
     product = 1
     for item in f:

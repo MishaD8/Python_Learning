@@ -6,11 +6,15 @@
 # (55, 1000, 'he') возвращает 55=1000=he=
 
 def f10(t1) :
-    pass
+    result = ""
+    for item in t1:
+        result += str(item) + "="
+    return result
 
 
 tpl = (100, 105, 110)
+tpl1 = (55, 1000, 'he')
 
-res = f10(tpl)
+res = f10(tpl1)
 
 print(res)

@@ -2,7 +2,8 @@ from urllib import response
 import requests
 import json
 
-r = requests.get('https://api.chucknorris.io/jokes/random')
+category = 'money'
+r = requests.get(f'https://api.chucknorris.io/jokes/random?category={category}')
 
 r = r.json()
 punchline = r['value']

@@ -7,7 +7,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 print(type(s))
 
 host = '127.0.0.1'
-port = 9001
+port = 9002
 
 # bind
 
